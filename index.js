@@ -9,6 +9,8 @@ import HC from "./modal/HC.js"
 import RBread from "./modal/RBread.js"
 import SBread from "./modal/SBread.js"
 import TPK from "./modal/TPK.js"
+import User from "./modal/User.js"
+import e from "express";
 
 
 
@@ -21,6 +23,28 @@ connect();
 
 app.get('/', (req, res) => {
     res.send('Hello World!')
+})
+
+app.post('/login',async(req,res)=>
+{
+    const {name,password} = req.body;
+    // console.log(req.body)
+    try {
+        let resp = await User.findOne({name});
+        if(resp)
+        {
+            if(resp.password == password)
+                return res.status(200).json({msg:"User successfully Login" , verified : true});
+            else
+                return res.status(400).json({msg:"User Password does't match" ,  verified : false});
+        }
+        else
+        {
+            return res.status(400).json({msg:"User doest't exist " ,  verified : false});
+        }
+    } catch (error) {
+        return res.status(400).json({msg:"Somethig went wrong" ,  verified : false});
+    }
 })
 
 app.get('/news', async (req, res) => {
