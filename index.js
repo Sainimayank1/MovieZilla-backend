@@ -17,6 +17,7 @@ app.get("/", (req, res) => {
 
 app.post("/login", async (req, res) => {
   const { email, password } = req.body;
+  console.log(req.body)
   try {
     if (password.length < 8)
       return res.status(500).json({ msg: "Password must contain 8 digits" });
@@ -33,7 +34,7 @@ app.post("/login", async (req, res) => {
       }
     }
   } catch (error) {
-    return res.status(500).json({ msg: "Somethig went wrong" });
+    return res.status(500).json({ msg: "Somethig went wrong",error });
   }
 });
 
