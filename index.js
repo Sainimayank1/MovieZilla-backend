@@ -20,7 +20,7 @@ app.post("/login", async (req, res) => {
   console.log(req.body)
   try {
     if (password.length < 8)
-      return res.status(500).json({ msg: "Password must contain 8 digits" });
+      return res.status(400).json({ msg: "Password must contain 8 digits" });
     else {
       let resp = await User.findOne({ email });
       if (resp) {
@@ -28,13 +28,13 @@ app.post("/login", async (req, res) => {
           return res
             .status(200)
             .json({ msg: "User successfully Login", details: resp });
-        else return res.status(500).json({ msg: "User password does't match" });
+        else return res.status(400).json({ msg: "User password does't match" });
       } else {
-        return res.status(500).json({ msg: "User doest't exist " });
+        return res.status(400).json({ msg: "User doest't exist " });
       }
     }
   } catch (error) {
-    return res.status(500).json({ msg: "Somethig went wrong",error });
+    return res.status(400).json({ msg: "Somethig went wrong",error });
   }
 });
 
