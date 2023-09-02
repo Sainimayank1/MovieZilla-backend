@@ -1,9 +1,10 @@
 import mongoose from "mongoose"
 mongoose.set('strictQuery', true);
 const connect = async () => {
+    
     try {
         //          TRY TO CONNECT TO DATABASE
-        const res = await mongoose.connect("mongodb+srv://mmxbatterchatter:nvcwYqFjC5pDJQcT@cluster0.2dd2w9q.mongodb.net/?retryWrites=true&w=majority?",
+        const res = await mongoose.connect("mongodb+srv://mayanksaini4455:k4HqZiQb1TQAw4HB@cluster0.ksix24d.mongodb.net/?retryWrites=true&w=majority",
             {
                 useNewUrlParser: true,
                 useUnifiedTopology: true,

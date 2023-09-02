@@ -1,12 +1,32 @@
 import mongoose, { Schema } from "mongoose";
 
+const favSchema = new mongoose.Schema({
+    id:{
+        type:String
+    },
+    original_title:{
+        type:String
+    },
+    poster_path:{
+        type:String
+    }});
+
 const UserSchema = new mongoose.Schema(
     {
         name: {
-            type: String
+            type: String,
+            require:true,
+        },
+        email:{
+            type:String,
+            require:true,
         },
         password:{
-            type:String
+            type:String,
+            require:true,
+        },
+        favorites:{
+            type:[favSchema]
         }
 
     }, { timestamps: true }

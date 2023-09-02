@@ -2,238 +2,102 @@ import connect from "./utlis/db.js";
 import express from "express";
 import bodyParser from "body-parser";
 import cors from "cors";
-import News from "./modal/News.js"
-import CMB from "./modal/CMB.js"
-import Cookies from "./modal/Cookies.js"
-import HC from "./modal/HC.js"
-import RBread from "./modal/RBread.js"
-import SBread from "./modal/SBread.js"
-import TPK from "./modal/TPK.js"
-import User from "./modal/User.js"
-import e from "express";
+import User from "./modal/User.js";
 
+const app = express();
+const port = 8000;
 
-
-const app = express()
-const port = 8000
-
-app.use(cors())
+app.use(cors());
 app.use(bodyParser.json());
 connect();
 
-app.get('/', (req, res) => {
-    res.send('Hello World!')
-})
+app.get("/", (req, res) => {
+  res.send("Hello World!");
+});
 
-app.post('/login',async(req,res)=>
-{
-    const {name,password} = req.body;
-    // console.log(req.body)
-    try {
-        let resp = await User.findOne({name});
-        if(resp)
-        {
-            if(resp.password == password)
-                return res.status(200).json({msg:"User successfully Login" , verified : true});
-            else
-                return res.status(400).json({msg:"User Password does't match" ,  verified : false});
-        }
-        else
-        {
-            return res.status(400).json({msg:"User doest't exist " ,  verified : false});
-        }
-    } catch (error) {
-        return res.status(400).json({msg:"Somethig went wrong" ,  verified : false});
-    }
-})
-
-app.get('/news', async (req, res) => {
-    try {
-        const response = await News.find().sort({createdAt:-1});
-        if (response)
-            return res.status(200).json({ data: response });
-        else
-            return res.status(400).json({ msg: "Something went wrong" })
-    } catch (error) {
-        return res.status(400).json({ msg: "Something went wrong" })
-    }
-})
-
-app.post("/news", async (req, res) => {
-    const { title, data } = req.body;
-
-    if (title == "")
-        return res.status(400).json({ msg: "Please enter title" });
-
-    if (data == "")
-        return res.status(400).json({ msg: "Please enter data" });
-
-    try {
-        const response = await News.create({ title, data });
-        if (response)
-            return res.status(200).json({ msg: "Post Succesfully created" });
-        else
-            return res.status(400).json({ msg: "Something went wrong" });
-    } catch (error) {
-        return res.status(400).json({ msg: error })
-    }
-})
-
-app.post("/products" , async (req,res)=>
-{
-    const {name,desc,catag} = req.body.value;
-    const {url,public_id} = req.body;
-
-    if(catag === "RBread")
-    {
-            try {
-                const response = await RBread.create({name,desc,catag,url,public_id})
-                if(response)
-                    return res.status(200).json({msg:"Product succcesFully created"})
-                else
-                    return res.status(400).json({msg:"Something went wrong"})
-            } catch (error) {
-                
-            }
-    }
-    else if(catag === "SBread" )
-    {
-        try {
-            const response = await SBread.create({name,desc,catag,url,public_id})
-            if(response)
-                return res.status(200).json({msg:"Product succcesFully created"})
-            else
-                return res.status(400).json({msg:"Something went wrong"})
-        } catch (error) {
-            
-        }
-    }
-    else if(catag === "CMB")
-    {
-        try {
-            const response = await CMB.create({name,desc,catag,url,public_id})
-            if(response)
-                return res.status(200).json({msg:"Product succcesFully created"})
-            else
-                return res.status(400).json({msg:"Something went wrong"})
-        } catch (error) {
-            
-        }
-    }
-    else if(catag === "TPK")
-    {
-        try {
-            const response = await TPK.create({name,desc,catag,url,public_id})
-            if(response)
-                return res.status(200).json({msg:"Product succcesFully created"})
-            else
-                return res.status(400).json({msg:"Something went wrong"})
-        } catch (error) {
-            
-        }
-    }
-    else if(catag === "Cookie")
-    {
-        try {
-            const response = await Cookies.create({name,desc,catag,url,public_id})
-            if(response)
-                return res.status(200).json({msg:"Product succcesFully created"})
-            else
-                return res.status(400).json({msg:"Something went wrong"})
-        } catch (error) {
-            
-        }
-    }
+app.post("/login", async (req, res) => {
+  const { email, password } = req.body;
+  try {
+    if (password.length < 8)
+      return res.status(400).json({ msg: "Password must contain 8 digits" });
     else {
-        try {
-            const response = await HC.create({name,desc,catag,url,public_id})
-            if(response)
-                return res.status(200).json({msg:"Product succcesFully created"})
-            else
-                return res.status(400).json({msg:"Something went wrong"})
-        } catch (error) {
-            
-        }
+      let resp = await User.findOne({ email });
+      if (resp) {
+        if (resp.password == password)
+          return res
+            .status(200)
+            .json({ msg: "User successfully Login", details: resp });
+        else return res.status(400).json({ msg: "User password does't match" });
+      } else {
+        return res.status(400).json({ msg: "User doest't exist " });
+      }
     }
-})
+  } catch (error) {
+    return res.status(400).json({ msg: "Somethig went wrong" });
+  }
+});
 
+app.post("/register", async (req, res) => {
+  const { name, email, password } = req.body;
+  try {
+    if (password.length < 8)
+      return res.status(400).json({ msg: "Password must contain 8 digits" });
+    else {
+      let resp = await User.findOne({ email });
+      if (resp) return res.status(400).json({ msg: "User already exist's" });
+      const isCreated = await User.create({ name, email, password });
+      if (isCreated)
+        return res
+          .status(200)
+          .json({ msg: "User create succesfully", isCreated });
+    }
+  } catch (error) {
+    return res.status(400).json({ msg: "Somethig went wrong" });
+  }
+});
 
-app.get("/product/RBread",async(req,res)=>
+app.post("/addFav", async (req, res) => {
+  const { email } = req.body;
+  const { id, original_title, poster_path } = req.body.favData;
+  try {
+    const isUpdate = await User.updateOne({ email }, { $push: {favorites:{id,original_title,poster_path}}});
+    if (isUpdate)
+      return res
+        .status(200)
+        .json({ msg: "Add item in Favorite", isUpdate });
+  } catch (error) {
+    return res.status(400).json({ msg: "Somethig went wrong" });
+  }
+});
+
+app.post("/fav",async (req,res) =>
 {
-    try {
-        const response = await RBread.find();
-        if(response)
-            return res.status(200).json({msg:"ALL posts" , response});
-        else 
-            return res.status(400).json({msg:"Something went wrong"});
-    } catch (error) {
-        return res.status(400).json({msg:"Something went wrong"});
-    }
+  const { email } = req.body;
+  try {
+    const isData = await User.findOne({ email });
+    if (isData)
+      return res
+        .status(200)
+        .json({ msg: "All items", data:isData.favorites });
+  } catch (error) {
+    return res.status(400).json({ msg: "Somethig went wrong" });
+  }
 })
 
-app.get("/product/Cookies",async(req,res)=>
+app.post("/removefav",async (req,res) =>
 {
-    try {
-        const response = await Cookies.find({})
-        if(response)
-            return res.status(200).json({msg:"ALL posts" , response});
-        else 
-            return res.status(400).json({msg:"Something went wrong"});
-    } catch (error) {
-        return res.status(400).json({msg:"Something went wrong"});
-    }
+  const { email , id , original_title , poster_path } = req.body;
+  try {
+    const isData = await User.update({ email }, { $pull: {favorites :  {id}}}, {new:true});
+    if (isData)
+      return res
+        .status(200)
+        .json({ msg: "All items", data:isData.favorites });
+  } catch (error) {
+    return res.status(400).json({ msg: "Somethig went wrong" ,error});
+  }
 })
 
-app.get("/product/CMB", async(req,res)=>
-{
-    try {
-        const response = await CMB.find({})
-        if(response)
-            return res.status(200).json({msg:"ALL posts" , response});
-        else 
-            return res.status(400).json({msg:"Something went wrong"});
-    } catch (error) {
-        return res.status(400).json({msg:"Something went wrong"});
-    }
-})
 
-app.get("/product/TPK",async(req,res)=>
-{
-    try {
-        const response = await TPK.find({})
-        if(response)
-            return res.status(200).json({msg:"ALL posts" , response});
-        else 
-            return res.status(400).json({msg:"Something went wrong"});
-    } catch (error) {
-        return res.status(400).json({msg:"Something went wrong"});
-    }
-})
 
-app.get("/product/SBread",async(req,res)=>
-{
-    try {
-        const response = await SBread.find({})
-        if(response)
-            return res.status(200).json({msg:"ALL posts" , response});
-        else 
-            return res.status(400).json({msg:"Something went wrong"});
-    } catch (error) {
-        return res.status(400).json({msg:"Something went wrong"});
-    }
-})
-
-app.get("/product/HC", async (req,res)=>
-{
-    try {
-        const response = await HC.find({})
-        if(response)
-            return res.status(200).json({msg:"ALL posts" , response});
-        else 
-            return res.status(400).json({msg:"Something went wrong"});
-    } catch (error) {
-        return res.status(400).json({msg:"Something went wrong"});
-    }
-})
-
-app.listen(port, () => console.log("Server is running :" + port))
+app.listen(port, () => console.log("Server is running :" + port));
