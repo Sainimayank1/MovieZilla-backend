@@ -87,15 +87,16 @@ app.post("/fav",async (req,res) =>
 
 app.post("/removefav",async (req,res) =>
 {
-  const { email , id , original_title , poster_path } = req.body;
+  const { email , id  } = req.body;
   try {
-    const isData = await User.update({ email }, { $pull: {favorites :  {id}}}, {new:true});
+    const isData = await User.updateOne({ email }, { $pull: {favorites :  {id:id}}}, {new:true});
     if (isData)
       return res
         .status(200)
         .json({ msg: "All items", data:isData.favorites });
-  } catch (error) {
-    return res.status(400).json({ msg: "Somethig went wrong" ,error});
+  } catch (error) 
+  {
+    return res.status(400).json({ msg: "Somethig went wrong"});
   }
 })
 
